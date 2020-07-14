@@ -38,8 +38,8 @@ impl Block {
                                 // and the hopper is pointing away from the chest
                                 // then empty the chest
                                 if self.direction_x != nx || self.direction_y != ny {
-                                    println!("Transfer from Chest ({},{}) to Hopper!", x, y);
-                                    println!("Chest ({},{}) deletes its item", x, y);
+                                    println!("Transfer from Chest ({},{}) to Hopper ({},{})!", nx, ny, x, y);
+                                    println!("Chest ({},{}) deletes its item", nx, ny);
                                     nxtv.item_type = ItemType::None;
                                 }
                             },
@@ -48,8 +48,8 @@ impl Block {
                                 // and the hopper is at this chest
                                 // then fill the chest with the item from the hopper
                                 if self.direction_x == nx && self.direction_y == ny {
-                                    println!("Transfer to Chest ({},{}) from Hopper!", x, y);
-                                    println!("Chest ({},{}) adds item ({:?}) from hopper", x, y, self.item_type);
+                                    println!("Transfer to Chest ({},{}) from Hopper ({},{})!", nx, ny, x, y);
+                                    println!("Chest ({},{}) adds item ({:?}) from Hopper ({},{})", nx, ny, self.item_type, x, y);
                                     nxtv.item_type = self.item_type;
                                 }
                             }
@@ -73,8 +73,8 @@ impl Block {
                                         // and the hopper is not empty
                                         _ => {
                                             // then empty the hopper
-                                            println!("Transfer to Chest ({},{}) from Hopper!", x, y);
-                                            println!("Hopper ({},{}) deletes its item", x, y);
+                                            println!("Transfer to Chest ({},{}) from Hopper ({},{})!", x, y, nx, ny);
+                                            println!("Hopper ({},{}) deletes its item", nx, ny);
                                             nxtv.item_type = ItemType::None;
                                         }
                                     }
@@ -88,8 +88,8 @@ impl Block {
                                         // and the hopper is empty
                                         ItemType::None => {
                                             // then fill the hopper with the item from the chest
-                                            println!("Transfer from Chest ({},{}) to Hopper!", x, y);
-                                            println!("Hopper ({},{}) adds item ({:?}) from chest", x, y, self.item_type);
+                                            println!("Transfer from Chest ({},{}) to Hopper ({},{})!", x, y, nx, ny);
+                                            println!("Hopper ({},{}) adds item ({:?}) from Chest ({},{})", nx, ny, self.item_type, x, y);
                                             nxtv.item_type = self.item_type;
                                         },
                                         _ => {}
@@ -106,7 +106,7 @@ impl Block {
     }
 }
 
-const N: usize = 200;
+const N: usize = 2000;
 
 // bounded grid coordinate
 fn bgc(coord: i32) -> i32 {
@@ -123,6 +123,7 @@ fn main() {
     grid[[3,5]] = Block { block_type: BlockType::Chest, item_type: ItemType::None, direction_x: 0, direction_y: 0 };
 
     let mut next_grid = Array2::<Block>::from_elem((N, N), empty_block);
+    show_grid(&grid);
 
     step(&grid, &mut next_grid);
     show_grid(&next_grid);
@@ -133,18 +134,20 @@ fn main() {
 }
 
 fn show_grid(grid: &Array2::<Block>) -> () {
+    println!();
     Zip::indexed(grid)
         .apply(|(x,y), v| {
             match v.block_type {
                 BlockType::Chest => {
-                    println!("Chest WITH ({},{}) {:?}", x, y, v.item_type)
+                    println!("Chest ({},{}) WITH {:?}", x, y, v.item_type)
                 },
                 BlockType::Hopper => {
-                    println!("Hopper WITH ({},{}) {:?}", x, y, v.item_type)
+                    println!("Hopper ({},{}) WITH {:?}", x, y, v.item_type)
                 },
                 _ => ()
             }
     });
+    println!();
 }
 
 fn step(grid: &Array2::<Block>, next_grid: &mut Array2::<Block>) -> () {
