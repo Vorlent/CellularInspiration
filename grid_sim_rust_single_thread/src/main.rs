@@ -1,14 +1,14 @@
 use ndarray::{s, Array2, Zip};
 use std::cmp;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 enum BlockType {
     None,
     Chest,
     Hopper
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 enum ItemType {
     None,
     Apple
@@ -36,48 +36,33 @@ impl Block {
                     let neighbour = grid[[cnx as usize, cny as usize]];
                     match neighbour.block_type {
                         BlockType::Chest => {
-                            if self.direction_x == cnx && self.direction_y == cny {
-                                // check if chest is empty
-                                match neighbour.item_type {
-                                    ItemType::None => {
-                                        // check if hopper is not empty
-                                        match self.item_type {
-                                            ItemType::None => {},
-                                            _ => {
-                                                println!("insert item into empty chest");
-                                                {
-                                                    let mut nv = &mut next_grid[[cnx as usize, cny as usize]];
-                                                    nv.item_type = self.item_type;
-                                                }
-                                                {
-                                                    let mut nxtv = &mut next_grid[[x as usize, y as usize]];
-                                                    nxtv.item_type = ItemType::None;
-                                                }
-                                            }
-                                        }
-                                    },
-                                    _ => {}
+                            // check if chest is empty
+                            if self.direction_x == cnx && self.direction_y == cny && neighbour.item_type == ItemType::None {
+                                // check if hopper is not empty
+                                if self.item_type != ItemType::None {
+                                    println!("insert item into empty chest");
+                                    {
+                                        let mut nv = &mut next_grid[[cnx as usize, cny as usize]];
+                                        nv.item_type = self.item_type;
+                                    }
+                                    {
+                                        let mut nxtv = &mut next_grid[[x as usize, y as usize]];
+                                        nxtv.item_type = ItemType::None;
+                                    }
                                 }
-                            } else {
-                                // check if chest is not empty
-                                match neighbour.item_type {
-                                    ItemType::None => {},
-                                    _ => {
-                                        // check if chest is empty
-                                        match self.item_type {
-                                            ItemType::None => {
-                                                println!("pull item from full chest");
-                                                {
-                                                    let mut nv = &mut next_grid[[cnx as usize, cny as usize]];
-                                                    nv.item_type = ItemType::None;
-                                                }
-                                                {
-                                                    let mut nxtv = &mut next_grid[[x as usize, y as usize]];
-                                                    nxtv.item_type = neighbour.item_type;
-                                                }
-                                            },
-                                            _ => {}
-                                        }
+                            }
+                            // check if chest is not empty
+                            if (self.direction_x != cnx || self.direction_y != cny) && neighbour.item_type != ItemType::None {
+                                // check if hopper is empty
+                                if self.item_type == ItemType::None {
+                                    println!("pull item from full chest");
+                                    {
+                                        let mut nv = &mut next_grid[[cnx as usize, cny as usize]];
+                                        nv.item_type = ItemType::None;
+                                    }
+                                    {
+                                        let mut nxtv = &mut next_grid[[x as usize, y as usize]];
+                                        nxtv.item_type = neighbour.item_type;
                                     }
                                 }
                             }
