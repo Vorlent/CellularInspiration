@@ -1,0 +1,19 @@
+.idle {
+    background-color: #FFF;
+    color: #000;
+}
+
+.locked {
+    background-color: #f22;
+    color: #000;
+}
+
+.processing {
+    background-color: #3e6eff;
+    color: #000;
+}
+
+.done {
+    background-color: #4af93b;
+    color: #000;
+}
